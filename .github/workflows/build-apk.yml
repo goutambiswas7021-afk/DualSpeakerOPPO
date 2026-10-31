@@ -1,3 +1,4 @@
+
 name: Build DualSpeakerOPPO APK
 
 'on':
@@ -7,9 +8,13 @@ name: Build DualSpeakerOPPO APK
       - "DualSpeakerOPPO_Source_Project.zip"
       - ".github/workflows/build-apk.yml"
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Get repository files
         uses: actions/checkout@v4
@@ -34,6 +39,10 @@ jobs:
       - name: Build APK
         run: |
           PROJECT_DIR="$(dirname "$(find app-source -name settings.gradle.kts -print -quit)")"
+          if [ -z "$PROJECT_DIR" ] || [ ! -f "$PROJECT_DIR/settings.gradle.kts" ]; then
+            echo "Gradle project settings file not found"
+            exit 1
+          fi
           cd "$PROJECT_DIR"
           gradle assembleDebug
 
