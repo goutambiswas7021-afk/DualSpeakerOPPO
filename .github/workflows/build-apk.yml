@@ -1,0 +1,46 @@
+name: Build DualSpeakerOPPO APK
+
+on:
+workflow_dispatch:
+push:
+paths:
+- 'DualSpeakerOPPO_Source_Project.zip'
+- '.github/workflows/build-apk.yml'
+
+jobs:
+build:
+runs-on: ubuntu-latest
+
+steps:
+  - name: Get repository files
+    uses: actions/checkout@v4
+
+  - name: Set up Java
+    uses: actions/setup-java@v4
+    with:
+      distribution: temurin
+      java-version: '17'
+
+  - name: Set up Android SDK
+    uses: android-actions/setup-android@v3
+
+  - name: Install Android SDK packages
+    run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+  - name: Extract app source
+    run: |
+      unzip DualSpeakerOPPO_Source_Project.zip -d app-source
+      find app-source -name settings.gradle.kts -print
+
+  - name: Build APK
+    run: |
+      PROJECT_DIR="$(dirname "$(find app-source -name settings.gradle.kts -print -quit)")"
+      cd "$PROJECT_DIR"
+      gradle assembleDebug
+
+  - name: Save APK
+    uses: actions/upload-artifact@v4
+    with:
+      name: DualSpeakerOPPO-APK
+      path: app-source/**/app/build/outputs/apk/debug/*.apk
+      if-no-files-found: error
