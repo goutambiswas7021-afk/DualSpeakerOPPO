@@ -1,7 +1,7 @@
 
 name: Build DualSpeakerOPPO APK
 
-'on':
+on:
   workflow_dispatch:
   push:
     paths:
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get repository files
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Java
@@ -33,7 +33,7 @@ jobs:
 
       - name: Extract app source
         run: |
-          unzip DualSpeakerOPPO_Source_Project.zip -d app-source
+          unzip -o DualSpeakerOPPO_Source_Project.zip -d app-source
           find app-source -name settings.gradle.kts -print
 
       - name: Build APK
@@ -46,9 +46,9 @@ jobs:
           cd "$PROJECT_DIR"
           gradle assembleDebug
 
-      - name: Save APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: DualSpeakerOPPO-APK
-          path: app-source/**/app/build/outputs/apk/debug/*.apk
+          path: "**/build/outputs/apk/debug/*.apk"
           if-no-files-found: error
